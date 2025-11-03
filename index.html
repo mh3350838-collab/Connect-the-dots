@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لغز التسع نقاط</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+        }
+        
+        .instructions {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-right: 4px solid #3498db;
+        }
+        
+        .game-info {
+            margin: 15px 0;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        
+        #puzzleCanvas {
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            margin: 10px 0;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button.reset {
+            background: #e74c3c;
+        }
+        
+        button.reset:hover {
+            background: #c0392b;
+        }
+        
+        .solution-btn {
+            background: #27ae60;
+        }
+        
+        .solution-btn:hover {
+            background: #219a52;
+        }
+        
+        .message {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hint {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧩 لغز التسع نقاط</h1>
+        
+        <div class="instructions">
+            <h3>التحدي: وصل التسع نقاط باستخدام 4 خطوط مستقيمة فقط!</h3>
+            <p>❌ ممنوع رفع القلم (استمر في السحب)<br>
+            ✅ يمكنك الخروج خارج المربع النقاط</p>
+        </div>
+        
+        <div class="game-info">
+            الخطوط المرسومة: <span id="linesCount">0</span> / 4
+        </div>
+        
+        <canvas id="puzzleCanvas" width="500" height="500"></canvas>
+        
+        <div class="controls">
+            <button onclick="startNewLine()">بدء خط جديد</button>
+            <button onclick="resetPuzzle()" class="reset">إعادة البدء</button>
+            <button onclick="showHint()" class="solution-btn">الحل</button>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="hint">
+            <strong>💡 تلميح:</strong> فكر خارج الصندوق! يمكنك الخروج خارج المربع الذي تشكله النقاط.
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('puzzleCanvas');
+        const ctx = canvas.getContext('2d');
+        const messageDiv = document.getElementById('message');
+        const linesCountSpan = document.getElementById('linesCount');
+
+        // إعدادات اللعبة
+        const dots = [];
+        const lines = [];
+        let currentLine = [];
+        let isDrawing = false;
+        let linesDrawn = 0;
+        const maxLines = 4;
+        const dotRadius = 8;
+
+        // إنشاء النقاط التسع
+        function createDots() {
+            dots.length = 0;
+            const spacing = 100;
+            const startX = 150;
+            const startY = 150;
+            
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    dots.push({
+                        x: startX + col * spacing,
+                        y: startY + row * spacing,
+                        connected: false
+                    });
+                }
+            }
+        }
+
+        // رسم النقاط
+        function drawDots() {
+            dots.forEach(dot => {
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
+                ctx.fillStyle = dot.connected ? '#27ae60' : '#3498db';
+                ctx.fill();
+                ctx.strokeStyle = '#2c3e50';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        // رسم الخطوط
+        function drawLines() {
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            
+            lines.forEach(line => {
+                ctx.beginPath();
+                ctx.moveTo(line[0].x, line[0].y);
+                ctx.lineTo(line[1].x, line[1].y);
+                ctx.stroke();
+            });
+            
+            // رسم الخط الحالي
+            if (currentLine.length === 1) {
+                ctx.beginPath();
+                ctx.moveTo(currentLine[0].x, currentLine[0].y);
+                ctx.lineTo(currentLine[0].x, currentLine[0].y);
+                ctx.stroke();
+            }
+        }
+
+        // تحديث الشاشة
+        function updateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawLines();
+            drawDots();
+            linesCountSpan.textContent = linesDrawn;
+        }
+
+        // بدء خط جديد
+        function startNewLine() {
+            if (linesDrawn >= maxLines) {
+                showMessage('لقد استخدمت جميع الخطوط الأربعة!', 'error');
+                return;
+            }
+            
+            if (currentLine.length === 0) {
+                showMessage('انقر على نقطة لبدء الخط الجديد', 'success');
+            } else {
+                showMessage('أكمل الخط الحالي أولاً', 'error');
+            }
+        }
+
+        // إعادة تعيين اللغز
+        function resetPuzzle() {
+            lines.length = 0;
+            currentLine = [];
+            linesDrawn = 0;
+            isDrawing = false;
+            dots.forEach(dot => dot.connected = false);
+            updateCanvas();
+            showMessage('تم إعادة البدء! جرب مرة أخرى', 'success');
+        }
+
+        // التحقق من الفوز
+        function checkWin() {
+            const allConnected = dots.every(dot => dot.connected);
+            if (allConnected && linesDrawn <= maxLines) {
+                showMessage('🎉 مبروك! لقد حللت اللغز بنجاح!', 'success');
+                return true;
+            }
+            return false;
+        }
+
+        // عرض رسالة
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+        }
+
+        // عرض الحل
+        function showHint() {
+            resetPuzzle();
+            
+            // الحل الصحيح للغز التسع نقاط
+            const solution = [
+                [{x: 145, y: 50}, {x: 145, y: 350}],   // خط رأسي يبدأ من أعلى
+                [{x: 145, y: 350}, {x: 355, y: 150}], // خط قطري
+                [{x: 355, y: 150}, {x: 355, y: 350}], // خط رأسي
+                [{x: 355, y: 350}, {x: 145, y: 350}]  // خط أفقي
+            ];
+            
+            let delay = 0;
+            solution.forEach((line, index) => {
+                setTimeout(() => {
+                    lines.push(line);
+                    linesDrawn++;
+                    
+                    // توصيل النقاط التي يمر بها الخط
+                    dots.forEach(dot => {
+                        if (isPointOnLine(dot, line[0], line[1])) {
+                            dot.connected = true;
+                        }
+                    });
+                    
+                    updateCanvas();
+                    
+                    if (index === solution.length - 1) {
+                        setTimeout(() => {
+                            showMessage('هذا هو الحل الصحيح! لاحظ كيف خرجنا خارج المربع', 'success');
+                        }, 500);
+                    }
+                }, delay);
+                delay += 1000;
+            });
+        }
+
+        // التحقق إذا كانت النقطة على الخط
+        function isPointOnLine(point, lineStart, lineEnd) {
+            const distance = Math.abs(
+                (lineEnd.y - lineStart.y) * point.x - 
+                (lineEnd.x - lineStart.x) * point.y + 
+                lineEnd.x * lineStart.y - 
+                lineEnd.y * lineStart.x
+            ) / Math.sqrt(
+                Math.pow(lineEnd.y - lineStart.y, 2) + 
+                Math.pow(lineEnd.x - lineStart.x, 2)
+            );
+            
+            return distance < 15;
+        }
+
+        // أحداث الماوس
+        canvas.addEventListener('mousedown', (e) => {
+            if (linesDrawn >= maxLines) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // البحث عن النقطة الأقرب
+            let closestDot = null;
+            let minDistance = 20;
+            
+            dots.forEach(dot => {
+                const distance = Math.sqrt(
+                    Math.pow(mouseX - dot.x, 2) + 
+                    Math.pow(mouseY - dot.y, 2)
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestDot = dot;
+                }
+            });
+            
+            if (closestDot && currentLine.length === 0) {
+                currentLine = [{x: closestDot.x, y: closestDot.y}];
+                isDrawing = true;
+                closestDot.connected = true;
+                updateCanvas();
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing || currentLine.length !== 1) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            updateCanvas();
+            
+            // رسم معاينة للخط
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(currentLine[0].x, currentLine[0].y);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.stroke();
+            drawDots();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing || currentLine.length !== 1) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // إنهاء الخط
+            currentLine.push({x: mouseX, y: mouseY});
+            lines.push([...currentLine]);
+            linesDrawn++;
+            
+            // توصيل النقاط التي يمر بها الخط
+            dots.forEach(dot => {
+                if (isPointOnLine(dot, currentLine[0], currentLine[1])) {
+                    dot.connected = true;
+                }
+            });
+            
+            currentLine = [];
+            isDrawing = false;
+            updateCanvas();
+            
+            if (!checkWin() && linesDrawn >= maxLines) {
+                showMessage('❌ لم تحل اللغز بعد. جرب مرة أخرى!', 'error');
+            }
+        });
+
+        // بدء اللعبة
+        createDots();
+        updateCanvas();
+        showMessage('انقر على "بدء خط جديد" ثم اسحب لتوصيل النقاط', 'success');
+    </script>
+</body>
+</html>
