@@ -3,141 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لغز التسع نقاط</title>
+    <title>لغز التسع نقاط - التحدي الحقيقي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
-        
+
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        
-        h1 {
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
             color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
-        
-        .instructions {
-            background: #e8f4fc;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-right: 4px solid #3498db;
+
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            font-weight: 300;
         }
-        
-        .game-info {
-            margin: 15px 0;
-            font-size: 18px;
-            color: #2c3e50;
-        }
-        
-        #puzzleCanvas {
-            border: 2px solid #34495e;
-            border-radius: 8px;
-            background: white;
-            cursor: crosshair;
-            margin: 10px 0;
-        }
-        
-        .controls {
-            margin: 20px 0;
-        }
-        
-        button {
-            background: #3498db;
+
+        .rules-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
             color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+        }
+
+        .rules-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rules-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-box li {
+            margin-bottom: 12px;
+            padding-right: 25px;
+            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .rules-box li:before {
+            content: "•";
+            position: absolute;
+            right: 0;
+            color: #ffeaa7;
+            font-size: 1.5rem;
+        }
+
+        .game-area {
+            position: relative;
+            margin: 25px 0;
+        }
+
+        #puzzleCanvas {
+            border: 3px solid #34495e;
+            border-radius: 15px;
+            background: #f8f9fa;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+            transition: all 0.3s ease;
+        }
+
+        #puzzleCanvas:hover {
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2c3e50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #74b9ff;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
             border: none;
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 5px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        button:hover {
-            background: #2980b9;
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
         }
-        
-        button.reset {
-            background: #e74c3c;
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
         }
-        
-        button.reset:hover {
-            background: #c0392b;
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fdcb6e, #f39c12);
+            color: white;
         }
-        
-        .solution-btn {
-            background: #27ae60;
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-        
-        .solution-btn:hover {
-            background: #219a52;
+
+        .btn:active {
+            transform: translateY(0);
         }
-        
+
         .message {
-            margin: 15px 0;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+            font-size: 1.1rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.5s ease;
         }
-        
-        .success {
+
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message.success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border: 2px solid #c3e6cb;
         }
-        
-        .error {
+
+        .message.error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
+            border: 2px solid #f5c6cb;
         }
-        
-        .hint {
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .hint-box {
             background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .hint-box h4 {
             color: #856404;
-            border: 1px solid #ffeaa7;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hint-content {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧩 لغز التسع نقاط</h1>
-        
-        <div class="instructions">
-            <h3>التحدي: وصل التسع نقاط باستخدام 4 خطوط مستقيمة فقط!</h3>
-            <p>❌ ممنوع رفع القلم (استمر في السحب)<br>
-            ✅ يمكنك الخروج خارج المربع النقاط</p>
+        <div class="header">
+            <h1>🧩 لغز التسع نقاط</h1>
+            <div class="subtitle">التحدي الحقيقي - لا ترفع إصبعك!</div>
         </div>
-        
-        <div class="game-info">
-            الخطوط المرسومة: <span id="linesCount">0</span> / 4
+
+        <div class="rules-box">
+            <h3>📋 قواعد اللعبة الأساسية</h3>
+            <ul>
+                <li>يجب توصيل جميع النقاط التسع باستخدام 4 خطوط مستقيمة فقط</li>
+                <li>ممنوع رفع الإصبع من الماوس أثناء الرسم (بدون توقف)</li>
+                <li>يجب أن تبدأ كل خطوة من حيث انتهت الخطوة السابقة</li>
+                <li>مسموح لك بالخروج خارج المربع الذي تشكله النقاط</li>
+            </ul>
         </div>
-        
-        <canvas id="puzzleCanvas" width="500" height="500"></canvas>
-        
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">الخطوط المستخدمة</div>
+                <div class="stat-value" id="linesCount">0 / 4</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">النقاط الموصولة</div>
+                <div class="stat-value" id="connectedDots">0 / 9</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">الحالة</div>
+                <div class="stat-value" id="gameStatus">جاري اللعب</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <canvas id="puzzleCanvas" width="500" height="500"></canvas>
+        </div>
+
         <div class="controls">
-            <button onclick="startNewLine()">بدء خط جديد</button>
-            <button onclick="resetPuzzle()" class="reset">إعادة البدء</button>
-            <button onclick="showHint()" class="solution-btn">الحل</button>
+            <button class="btn btn-primary" onclick="startGame()">
+                🎮 بدء اللعبة
+            </button>
+            <button class="btn btn-danger" onclick="resetGame()">
+                🔄 إعادة البدء
+            </button>
+            <button class="btn btn-warning" onclick="showSolution()">
+                💡 عرض الحل
+            </button>
         </div>
-        
+
         <div id="message" class="message"></div>
-        
-        <div class="hint">
-            <strong>💡 تلميح:</strong> فكر خارج الصندوق! يمكنك الخروج خارج المربع الذي تشكله النقاط.
+
+        <div class="hint-box">
+            <h4>💡 تلميح مهم</h4>
+            <div class="hint-content">
+                مفتاح حل هذا اللغز هو "التفكير خارج الصندوق"! لا تقيد نفسك بالمربع الذي تشكله النقاط. 
+                حاول الخروج خارج هذا المربع الافتراضي وستجد الحل.
+            </div>
         </div>
     </div>
 
@@ -146,14 +327,15 @@
         const ctx = canvas.getContext('2d');
         const messageDiv = document.getElementById('message');
         const linesCountSpan = document.getElementById('linesCount');
+        const connectedDotsSpan = document.getElementById('connectedDots');
+        const gameStatusSpan = document.getElementById('gameStatus');
 
         // إعدادات اللعبة
         const dots = [];
         const lines = [];
         let currentLine = [];
         let isDrawing = false;
-        let linesDrawn = 0;
-        const maxLines = 4;
+        let gameStarted = false;
         const dotRadius = 8;
 
         // إنشاء النقاط التسع
@@ -179,19 +361,27 @@
             dots.forEach(dot => {
                 ctx.beginPath();
                 ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
-                ctx.fillStyle = dot.connected ? '#27ae60' : '#3498db';
+                ctx.fillStyle = dot.connected ? '#00b894' : '#e17055';
                 ctx.fill();
-                ctx.strokeStyle = '#2c3e50';
+                ctx.strokeStyle = '#2d3436';
                 ctx.lineWidth = 2;
                 ctx.stroke();
+                
+                // تأثير ظل للنقاط
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
             });
+            ctx.shadowColor = 'transparent';
         }
 
         // رسم الخطوط
         function drawLines() {
-            ctx.strokeStyle = '#e74c3c';
-            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#0984e3';
+            ctx.lineWidth = 6;
             ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
             
             lines.forEach(line => {
                 ctx.beginPath();
@@ -201,7 +391,7 @@
             });
             
             // رسم الخط الحالي
-            if (currentLine.length === 1) {
+            if (currentLine.length === 1 && isDrawing) {
                 ctx.beginPath();
                 ctx.moveTo(currentLine[0].x, currentLine[0].y);
                 ctx.lineTo(currentLine[0].x, currentLine[0].y);
@@ -214,39 +404,52 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawLines();
             drawDots();
-            linesCountSpan.textContent = linesDrawn;
+            updateStats();
         }
 
-        // بدء خط جديد
-        function startNewLine() {
-            if (linesDrawn >= maxLines) {
-                showMessage('لقد استخدمت جميع الخطوط الأربعة!', 'error');
-                return;
-            }
+        // تحديث الإحصائيات
+        function updateStats() {
+            const connectedCount = dots.filter(dot => dot.connected).length;
+            const linesCount = lines.length;
             
-            if (currentLine.length === 0) {
-                showMessage('انقر على نقطة لبدء الخط الجديد', 'success');
+            linesCountSpan.textContent = `${linesCount} / 4`;
+            connectedDotsSpan.textContent = `${connectedCount} / 9`;
+            
+            if (connectedCount === 9 && linesCount <= 4) {
+                gameStatusSpan.textContent = 'فوز! 🎉';
+                gameStatusSpan.style.color = '#00b894';
+            } else if (linesCount >= 4 && connectedCount < 9) {
+                gameStatusSpan.textContent = 'خسارة! ❌';
+                gameStatusSpan.style.color = '#e17055';
             } else {
-                showMessage('أكمل الخط الحالي أولاً', 'error');
+                gameStatusSpan.textContent = 'جاري اللعب';
+                gameStatusSpan.style.color = '#0984e3';
             }
         }
 
-        // إعادة تعيين اللغز
-        function resetPuzzle() {
+        // بدء اللعبة
+        function startGame() {
+            resetGame();
+            gameStarted = true;
+            showMessage('🎮 ابدأ بالضغط على أي نقطة واسحب بدون رفع الإصبع!', 'info');
+        }
+
+        // إعادة تعيين اللعبة
+        function resetGame() {
             lines.length = 0;
             currentLine = [];
-            linesDrawn = 0;
             isDrawing = false;
+            gameStarted = true;
             dots.forEach(dot => dot.connected = false);
             updateCanvas();
-            showMessage('تم إعادة البدء! جرب مرة أخرى', 'success');
+            showMessage('🔄 تم إعادة البدء! جرب مرة أخرى', 'info');
         }
 
         // التحقق من الفوز
         function checkWin() {
             const allConnected = dots.every(dot => dot.connected);
-            if (allConnected && linesDrawn <= maxLines) {
-                showMessage('🎉 مبروك! لقد حللت اللغز بنجاح!', 'success');
+            if (allConnected && lines.length <= 4) {
+                showMessage('🎉 مبروك! لقد حللت اللغز بنجاح! هذا هو التفكير الإبداعي الحقيقي!', 'success');
                 return true;
             }
             return false;
@@ -255,28 +458,29 @@
         // عرض رسالة
         function showMessage(text, type) {
             messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
+            messageDiv.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 5000);
         }
 
         // عرض الحل
-        function showHint() {
-            resetPuzzle();
+        function showSolution() {
+            resetGame();
             
-            // الحل الصحيح للغز التسع نقاط
             const solution = [
-                [{x: 145, y: 50}, {x: 145, y: 350}],   // خط رأسي يبدأ من أعلى
-                [{x: 145, y: 350}, {x: 355, y: 150}], // خط قطري
-                [{x: 355, y: 150}, {x: 355, y: 350}], // خط رأسي
-                [{x: 355, y: 350}, {x: 145, y: 350}]  // خط أفقي
+                [{x: 145, y: 50}, {x: 145, y: 350}],
+                [{x: 145, y: 350}, {x: 355, y: 150}],
+                [{x: 355, y: 150}, {x: 355, y: 350}],
+                [{x: 355, y: 350}, {x: 145, y: 350}]
             ];
             
             let delay = 0;
             solution.forEach((line, index) => {
                 setTimeout(() => {
                     lines.push(line);
-                    linesDrawn++;
                     
-                    // توصيل النقاط التي يمر بها الخط
                     dots.forEach(dot => {
                         if (isPointOnLine(dot, line[0], line[1])) {
                             dot.connected = true;
@@ -312,15 +516,15 @@
 
         // أحداث الماوس
         canvas.addEventListener('mousedown', (e) => {
-            if (linesDrawn >= maxLines) return;
+            if (!gameStarted) return;
+            if (lines.length >= 4) return;
             
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             
-            // البحث عن النقطة الأقرب
             let closestDot = null;
-            let minDistance = 20;
+            let minDistance = 25;
             
             dots.forEach(dot => {
                 const distance = Math.sqrt(
@@ -351,9 +555,8 @@
             
             updateCanvas();
             
-            // رسم معاينة للخط
-            ctx.strokeStyle = '#e74c3c';
-            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#74b9ff';
+            ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(currentLine[0].x, currentLine[0].y);
@@ -369,12 +572,9 @@
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             
-            // إنهاء الخط
             currentLine.push({x: mouseX, y: mouseY});
             lines.push([...currentLine]);
-            linesDrawn++;
             
-            // توصيل النقاط التي يمر بها الخط
             dots.forEach(dot => {
                 if (isPointOnLine(dot, currentLine[0], currentLine[1])) {
                     dot.connected = true;
@@ -385,15 +585,17 @@
             isDrawing = false;
             updateCanvas();
             
-            if (!checkWin() && linesDrawn >= maxLines) {
-                showMessage('❌ لم تحل اللغز بعد. جرب مرة أخرى!', 'error');
+            if (!checkWin() && lines.length >= 4) {
+                showMessage('❌ انتهت المحاولات! لم تحل اللغز بعد. جرب مرة أخرى!', 'error');
             }
         });
 
-        // بدء اللعبة
+        // بدء اللعبة تلقائياً
         createDots();
         updateCanvas();
-        showMessage('انقر على "بدء خط جديد" ثم اسحب لتوصيل النقاط', 'success');
+        setTimeout(() => {
+            showMessage('🎯 اضغط على "بدء اللعبة" ثم ابدأ بالتحدي الحقيقي - بدون رفع الإصبع!', 'info');
+        }, 1000);
     </script>
 </body>
 </html>
